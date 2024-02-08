@@ -1,1 +1,189 @@
+#include "String.h"
+#include <iostream>
+#include <cstring>
+#include <cctype>
+
+// Constructor
+String::String() : data(nullptr), length(0) {}
+
+// Constructor with C-style string
+String::String(const char* _str) : data(nullptr), length(0) {
+    if (_str) {
+        length = strlen(_str);
+        data = new char[length + 1];
+        strcpy(data, _str);
+    }
+}
+
+// Copy constructor
+String::String(const String& _other) : data(nullptr), length(0) {
+    if (_other.data) {
+        length = _other.length;
+        data = new char[length + 1];
+        strcpy(data, _other.data);
+    }
+}
+
+// Destructor
+String::~String() {
+    delete[] data;
+}
+
+// Length method
+size_t String::Length() const {
+    return length;
+}
+
+// CharacterAt methods
+char& String::CharacterAt(size_t _index) {
+    if (_index >= 0 && _index < length) {
+        return data[_index];
+    }
+    // You may want to handle this case differently (e.g., throw an exception)
+    static char nullChar = '\0';
+    return nullChar;
+}
+
+const char& String::CharacterAt(size_t _index) const {
+    if (_index >= 0 && _index < length) {
+        return data[_index];
+    }
+    // You may want to handle this case differently (e.g., throw an exception)
+    static char nullChar = '\0';
+    return nullChar;
+}
+
+// EqualTo method
+bool String::EqualTo(const String& _other) const {
+    return (length == _other.length) && (strcmp(data, _other.data) == 0);
+}
+
+// Append method
+String& String::Append(const String& _str) {
+    if (_str.data) {
+        char* temp = new char[length + _str.length + 1];
+        strcpy(temp, data);
+        strcat(temp, _str.data);
+        delete[] data;
+        data = temp;
+        length += _str.length;
+    }
+    return *this;
+}
+
+// Prepend method
+String& String::Prepend(const String& _str) {
+    if (_str.data) {
+        char* temp = new char[length + _str.length + 1];
+        strcpy(temp, _str.data);
+        strcat(temp, data);
+        delete[] data;
+        data = temp;
+        length += _str.length;
+    }
+    return *this;
+}
+
+// CStr method
+const char* String::CStr() const {
+    return data;
+}
+
+// ToLower method
+String& String::ToLower() {
+    for (size_t i = 0; i < length; ++i) {
+        data[i] = std::tolower(data[i]);
+    }
+    return *this;
+}
+
+// ToUpper method
+String& String::ToUpper() {
+    for (size_t i = 0; i < length; ++i) {
+        data[i] = std::toupper(data[i]);
+    }
+    return *this;
+}
+
+// Find methods
+size_t String::Find(const String& _str) {
+    return Find(0, _str);
+}
+
+size_t String::Find(size_t _startIndex, const String& _str) {
+    size_t foundIndex = std::string(data).find(_str.data, _startIndex);
+    return (foundIndex != std::string::npos) ? foundIndex : length;
+}
+
+// Replace method
+String& String::Replace(const String& _find, const String& _replace) {
+    size_t pos = Find(_find);
+    if (pos != length) {
+        String before = String(data).Substring(0, pos);
+        String after = String(data).Substring(pos + _find.length);
+        *this = before + _replace + after;
+    }
+    return *this;
+}
+
+// ReadFromConsole method
+String& String::ReadFromConsole() {
+    char buffer[256];
+    std::cin.getline(buffer, sizeof(buffer));
+    *this = String(buffer);
+    return *this;
+}
+
+// WriteToConsole method
+String& String::WriteToConsole() {
+    std::cout << data;
+    return *this;
+}
+
+// Equality operator
+bool String::operator==(const String& _other) {
+    return EqualTo(_other);
+}
+
+// Inequality operator
+bool String::operator!=(const String& _other) {
+    return !EqualTo(_other);
+}
+
+// Assignment operator
+String& String::operator=(const String& _str) {
+    if (this != &_str) {
+        delete[] data;
+        length = _str.length;
+        data = new char[length + 1];
+        strcpy(data, _str.data);
+    }
+    return *this;
+}
+
+// Subscript operator
+char& String::operator[](size_t _index) {
+    return CharacterAt(_index);
+}
+
+const char& String::operator[](size_t _index) const {
+    return CharacterAt(_index);
+}
+
+// Plus operator
+String String::operator+(const String& _other) const {
+    String result(*this);
+    result.Append(_other);
+    return result;
+}
+
+// Plus equals operator
+String& String::operator+=(const String& _other) {
+    return Append(_other);
+}
+
+// Less than operator
+bool String::operator<(const String& _other) const {
+    return std::string(data) < std::string(_other.data);
+}
 
